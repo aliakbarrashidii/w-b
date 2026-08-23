@@ -11,6 +11,15 @@ const config = require('./config');
 const app = express();
 const PORT = config.port;
 
+// روی Render (و هر هاست دیگه‌ای پشت پروکسی) لازمه، وگرنه express-rate-limit با خطای
+// X-Forwarded-For کرش می‌کنه چون به‌صورت پیش‌فرض به پروکسی جلوش اعتماد نمی‌کنه
+app.set('trust proxy', 1);
+
+// مسیر سلامت سرور — برای بررسی مستقل اینکه بک‌اند واقعاً بالاست (مثلاً از رندر یا مانیتورینگ)
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', service: 'wizel-backend', timestamp: new Date().toISOString() });
+});
+
 // Middleware
 app.use(compression()); // فشرده‌سازی gzip پاسخ‌ها — کاهش حجم انتقال و افزایش سرعت (مشابه اثر LiteSpeed Cache)
 app.use(cors({
@@ -113,7 +122,7 @@ mongoose.connect(config.mongoUri)
       }
     } catch (e) { console.error('⚠️ خطا در seed کردن کاربر مالک:', e.message); }
 
-    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+    app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Server running on 0.0.0.0:${PORT}`));
   })
   .catch(e => { console.error('❌ MongoDB error:', e.message); process.exit(1); });
 

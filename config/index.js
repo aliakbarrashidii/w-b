@@ -18,7 +18,7 @@ const clientUrls = (process.env.CLIENT_URL || 'http://localhost:5173')
   .filter(Boolean);
 
 module.exports = {
-  port: parseInt(process.env.PORT) || 5000,
+  port: parseInt(process.env.PORT) || 10000,
   nodeEnv: process.env.NODE_ENV || 'development',
 
   mongoUri: required('MONGODB_URI', 'mongodb://localhost:27017/wizel'),
