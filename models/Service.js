@@ -14,6 +14,7 @@ const serviceSchema = new mongoose.Schema({
   video: String, // آدرس ویدیوی معرفی این سرویس (فایل مستقیم mp4 یا لینک یوتیوب/آپارات)
   packages: [{
     name: String, price: String, popular: Boolean,
+    image: String, // آیکون/تصویر اختصاصی این پکیج
     features: [String]
   }]
 });

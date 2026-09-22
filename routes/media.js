@@ -10,20 +10,31 @@ const auth = require('../middleware/auth');
 const uploadDir = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
+// پسوندهای مجاز — تقریباً هر نوع فایل معمولی (تصویر، ویدیو، سند، فشرده، صوت)، به‌جز فایل‌های اجرایی/اسکریپتی خطرناک
+const ALLOWED_EXT = [
+  '.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.ico', '.bmp', // تصویر
+  '.mp4', '.webm', '.mov', '.ogg', '.avi', '.mkv', // ویدیو
+  '.mp3', '.wav', '.m4a', // صوت
+  '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt', '.csv', // سند
+  '.zip', '.rar', '.7z', // فشرده
+];
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadDir),
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
-    const safeExt = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.mp4', '.webm', '.mov', '.ogg'].includes(ext) ? ext : (file.mimetype.startsWith('video/') ? '.mp4' : '.jpg');
+    const safeExt = ALLOWED_EXT.includes(ext) ? ext : '';
+    if (!safeExt) return cb(new Error('این نوع فایل مجاز نیست'));
     cb(null, `${Date.now()}_${Math.random().toString(36).slice(2, 8)}${safeExt}`);
   },
 });
 
 const upload = multer({
   storage,
-  limits: { fileSize: 60 * 1024 * 1024 }, // ۶۰ مگابایت (برای ویدیوهای کوتاه معرفی سرویس)
+  limits: { fileSize: 60 * 1024 * 1024 }, // ۶۰ مگابایت
   fileFilter: (req, file, cb) => {
-    if (!/^image\/|^video\//.test(file.mimetype)) return cb(new Error('فقط فایل تصویر یا ویدیو مجاز است'));
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (!ALLOWED_EXT.includes(ext)) return cb(new Error('این نوع فایل مجاز نیست'));
     cb(null, true);
   },
 });
