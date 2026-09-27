@@ -17,6 +17,7 @@ const ALLOWED_EXT = [
   '.mp3', '.wav', '.m4a', // صوت
   '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt', '.csv', // سند
   '.zip', '.rar', '.7z', // فشرده
+  '.apk', '.aab', '.ipa', // فایل نصب اپ (اندروید/iOS)
 ];
 
 const storage = multer.diskStorage({
@@ -31,7 +32,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 60 * 1024 * 1024 }, // ۶۰ مگابایت
+  limits: { fileSize: 200 * 1024 * 1024 }, // ۲۰۰ مگابایت (برای فایل‌های نصب اپ که معمولاً بزرگ‌ترن)
   fileFilter: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
     if (!ALLOWED_EXT.includes(ext)) return cb(new Error('این نوع فایل مجاز نیست'));
